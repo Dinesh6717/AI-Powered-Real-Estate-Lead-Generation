@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Property Details | Real Estate</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .property-details {
+      display: flex;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .property-images {
+      flex: 1;
+    }
+    .property-info {
+      flex: 1;
+    }
+    .main-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .thumbnail-container {
+      display: flex;
+      gap: 10px;
+    }
+    .thumbnail {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .favorite-btn {
+      background: #ff5c5c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .back-btn {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .comment-box {
+      margin-top: 30px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .submit-comment {
+      margin-top: 10px;
+      padding: 8px 16px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.history.back()">← Back to Properties</button>
+
+  <div id="property-container">
+    <p>Loading property details...</p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const propertyId = urlParams.get('id');
+      const token = localStorage.getItem('token');
+
+      if (!propertyId || !token) {
+        window.location.href = 'home.html';
+        return;
+      }
+
+      try {
+        // Fetch property details
+        const res = await fetch(`http://localhost:5000/api/properties/${propertyId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) throw new Error('Property fetch failed');
+        const property = await res.json();
+
+        // Check if property is favorited
+        let isFavorited = false;
+        const favRes = await fetch('http://localhost:5000/api/favorites', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (favRes.ok) {
+          const favData = await favRes.json();
+          const favIds = favData.properties.map(p => p._id.toString());
+          isFavorited = favIds.includes(property._id.toString());
+        }
+
+        const container = document.getElementById('property-container');
+        container.innerHTML = `
+          <div class="property-details">
+            <div class="property-images">
+              <img src="http://localhost:5000/images/${property.images[0]}" alt="${property.title}" class="main-image" id="main-image">
+              <div class="thumbnail-container">
+                ${property.images.map(img => `
+                  <img src="http://localhost:5000/images/${img}" alt="Thumbnail" class="thumbnail" onclick="document.getElementById('main-image').src = this.src">
+                `).join('')}
+              </div>
+            </div>
+            <div class="property-info">
+              <h1>${property.title}</h1>
+              <h2>$${property.price}</h2>
+              <p><strong>Location:</strong> ${property.location}</p>
+              <p><strong>Area:</strong> ${property.area} sqft</p>
+
+              <p>${property.description}</p>
+
+              <button class="favorite-btn" onclick="toggleFavorite('${property._id}')">
+                <i class="fas fa-heart ${isFavorited ? 'active' : ''}"></i>
+                ${isFavorited ? 'Favorited' : 'Add to Favorites'}
+              </button>
+
+              <div class="comment-box">
+                <h3>Leave a Comment (to analyze intent):</h3>
+                <textarea id="commentText" placeholder="Type your comment here..."></textarea>
+                <button class="submit-comment" onclick="submitComment('${property._id}')">Submit</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error('Error loading property:', err);
+        document.getElementById('property-container').innerHTML = `<p>Failed to load property details. Please try again later.</p>`;
+      }
+    });
+
+    async function toggleFavorite(propertyId) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('http://localhost:5000/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ propertyId })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          const btn = document.querySelector('.favorite-btn');
+          btn.innerHTML = `
+            <i class="fas fa-heart ${data.isFavorited ? 'active' : ''}"></i>
+            ${data.isFavorited ? 'Favorited' : 'Add to Favorites'}
+          `;
+        }
+      } catch (err) {
+        console.error('Error updating favorite:', err);
+      }
+    }
+
+    async function submitComment(propertyId) {
+  try {
+    // 1. Get and validate input
+    const comment = document.getElementById('commentText').value.trim();
+    if (!comment) {
+      showNotification('Please write a comment', 'error');
+      return;
+    }
+
+    // 2. Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showNotification('You must be logged in to comment', 'error');
+      return; // Removed redirect
+    }
+
+    // 3. Add loading state
+    toggleLoading(true);
+
+    // 4. Make API request
+    const response = await fetch('http://localhost:5000/api/comments', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ propertyId, comment })
+    });
+
+    // 5. Handle response
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to submit comment');
+    }
+
+    // 6. Success case
+    showNotification('Comment submitted successfully!', 'success');
+    document.getElementById('commentText').value = '';
+    
+  } catch (error) {
+    console.error('Comment submission error:', error);
+    showNotification(error.message || 'Failed to submit comment. Please try again.', 'error');
+    
+    // Token cleanup without redirect
+    if (error.message.includes('401')) {
+      localStorage.removeItem('token');
+    }
+  } finally {
+    toggleLoading(false);
+  }
+}
+
+// Helper functions (unchanged)
+function showNotification(message, type) {
+  // Replace with toast/notification library
+  alert(`${type.toUpperCase()}: ${message}`); 
+}
+
+function toggleLoading(isLoading) {
+  const btn = document.querySelector('#submitCommentBtn');
+  if (btn) {
+    btn.disabled = isLoading;
+    btn.innerHTML = isLoading ? 'Submitting...' : 'Submit';
+  }
+}
+
+  </script>
+</body>
+</html>

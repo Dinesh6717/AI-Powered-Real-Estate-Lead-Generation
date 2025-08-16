@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home | Real Estate</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+    }
+
+    h1 {
+      margin: 30px 0 10px;
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2rem;
+    }
+
+    button.logout {
+      display: block;
+      margin: 0 auto 20px;
+      background-color: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button.logout:hover {
+      background-color: #c0392b;
+    }
+
+    #propertiesList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      padding: 0 20px 40px;
+    }
+
+    #propertiesList > div {
+      width: 300px;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #propertiesList > div:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #eee;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 14px 16px 4px;
+      color: #0077cc;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    h2:hover {
+      color: #005999;
+    }
+
+    p {
+      font-size: 14px;
+      margin: 6px 16px;
+      color: #444;
+    }
+
+    button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      margin: 12px 16px;
+      cursor: pointer;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .favorite i {
+      color: #aaa;
+    }
+
+    .favorited i {
+      color: #e74c3c;
+    }
+
+    button:hover i {
+      transform: scale(1.2);
+    }
+
+    button:focus {
+      outline: none;
+    }
+
+    hr {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the Real Estate Properties Page 🏡</h1>
+  <button onclick="logoutUser()" class="logout">Logout</button>
+  <div id="propertiesList">Loading properties...</div>
+
+  <script>
+    async function fetchProperties() {
+      const token = localStorage.getItem('token')?.trim();
+
+      if (!token) {
+        alert('Please log in to view properties');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      try {
+        document.getElementById('propertiesList').innerHTML = 'Loading properties...';
+
+        const [propertiesResponse, favoritesResponse] = await Promise.all([
+          fetch('http://localhost:5000/api/properties', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }),
+          fetch('http://localhost:5000/api/favorites', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+        ]);
+
+        if (!propertiesResponse.ok) {
+          throw new Error('Failed to fetch properties');
+        }
+
+        const properties = await propertiesResponse.json();
+        let favoriteIds = new Set();
+
+        if (favoritesResponse.ok) {
+          const favoritesData = await favoritesResponse.json();
+          if (favoritesData.properties) {
+            favoriteIds = new Set(favoritesData.properties.map(p => p._id.toString()));
+          }
+        }
+
+        const propertiesDiv = document.getElementById('propertiesList');
+        propertiesDiv.innerHTML = '';
+
+        if (properties.length === 0) {
+          propertiesDiv.innerHTML = '<p>No properties available</p>';
+          return;
+        }
+
+        properties.forEach(property => {
+          const isFavorite = favoriteIds.has(property._id.toString());
+          const propElement = document.createElement('div');
+
+          propElement.innerHTML = `
+            <h2 onclick="window.location.href='property.html?id=${property._id}'">
+              ${property.title || 'No Title'}
+            </h2>
+            <img src="http://localhost:5000/images/${property.images?.[0] || 'default.jpg'}" 
+                alt="${property.title || 'Property Image'}"
+                onerror="this.src='http://localhost:5000/images/default.jpg'">
+            <p>Location: ${property.location || 'N/A'}</p>
+            <p>Price: $${property.price ? property.price.toLocaleString() : 'N/A'}</p>
+            <p>Area: ${property.area ? `${property.area} sqft` : 'N/A'}</p>
+            <button 
+              id="fav-${property._id}"
+              class="${isFavorite ? 'favorited' : 'favorite'}" 
+              onclick="toggleFavorite('${property._id}')"
+              title="Click to toggle favorite"
+            >
+              <i class="fa${isFavorite ? 's' : 'r'} fa-heart"></i>
+            </button>
+          `;
+          propertiesDiv.appendChild(propElement);
+        });
+
+      } catch (error) {
+        console.error('Error loading properties:', error);
+        document.getElementById('propertiesList').innerHTML = `
+          <p>Failed to load properties. ${error.message}</p>
+          <button onclick="fetchProperties()">Retry</button>
+        `;
+      }
+    }
+
+    async function toggleFavorite(propertyId) {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:5000/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ propertyId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const button = document.getElementById(`fav-${propertyId}`);
+          const icon = button.querySelector('i');
+          if (data.isFavorited) {
+            button.className = 'favorited';
+            icon.className = 'fas fa-heart';
+          } else {
+            button.className = 'favorite';
+            icon.className = 'far fa-heart';
+          }
+        } else {
+          alert(data.message || 'Failed to update favorite');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+
+    fetchProperties();
+  </script>
+</body>
+</html>

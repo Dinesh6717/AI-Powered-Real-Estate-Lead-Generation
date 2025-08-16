@@ -1,0 +1,124 @@
+{
+  "properties": [
+    {
+      "id": "1",
+      "title": "3 BHK Apartment in Diamond Hills",
+      "price": "₹58.3 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Tolichowki, Hyderabad",
+      "area": "1100 sq ft",
+      "facilities": ["Balcony", "24/7 Water", "Parking"],
+      "description": "A well-maintained 3-bedroom apartment located in the Diamond Hills area, offering proximity to essential amenities and transportation facilities.",
+      "images": ["img1.jpg"]
+    },
+    {
+      "id": "2",
+      "title": "2 BHK Flat in Bachupally",
+      "price": "₹45 Lakhs",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "location": "Bachupally, Hyderabad",
+      "area": "950 sq ft",
+      "facilities": ["Gym", "CCTV", "Covered Parking"],
+      "description": "An unfurnished 2-bedroom flat situated near educational hubs like Delhi Public School and The Creek School.",
+      "images": ["img4.jpg"]
+    },
+    {
+      "id": "3",
+      "title": "3 BHK Flat in Mehdipatnam",
+      "price": "₹35 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Mehdipatnam, Hyderabad",
+      "area": "1350 sq ft",
+      "facilities": ["Lift", "Water Storage", "Market Nearby"],
+      "description": "A spacious 3-bedroom flat located in Mehdipatnam, offering easy access to public transportation and local markets.",
+      "images": ["img3.jpg"]
+    },
+    {
+      "id": "4",
+      "title": "3 BHK Apartment in Godrej Kokapet",
+      "price": "₹3 Crores",
+      "bedrooms": 3,
+      "bathrooms": 3,
+      "location": "Kokapet, Hyderabad",
+      "area": "2350 sq ft",
+      "facilities": ["Clubhouse", "Swimming Pool", "Gym"],
+      "description": "A luxurious 3-bedroom apartment in the prestigious Godrej Kokapet project, featuring modern design and premium amenities.",
+      "images": ["img2.jpg"]
+    },
+    {
+      "id": "5",
+      "title": "2 BHK Flat in Attapur",
+      "price": "₹75 Lakhs",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "location": "Attapur, Hyderabad",
+      "area": "1195 sq ft",
+      "facilities": ["Lift", "Security", "Parking"],
+      "description": "A 2-bedroom flat in Maphar's Serene multistorey building, offering comfortable living spaces and convenient access to city amenities.",
+      "images": ["img5.jpg"]
+    },
+    {
+      "id": "6",
+      "title": "3 BHK Flat in Asif Nagar",
+      "price": "₹90 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Asif Nagar, Hyderabad",
+      "area": "1496 sq ft",
+      "facilities": ["Security", "Parking", "Balcony"],
+      "description": "A newly available 3-bedroom flat ready for immediate occupancy, located in a well-connected area.",
+      "images": ["img6.jpg"]
+    },
+    {
+      "id": "7",
+      "title": "3 BHK Flat in Suncity",
+      "price": "₹65 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Suncity, Hyderabad",
+      "area": "1350 sq ft",
+      "facilities": ["Loan Facility", "Water Supply", "Parking"],
+      "description": "A 3-bedroom flat available for sale in Suncity, offering bank loan facilities and situated in a prime residential area.",
+      "images": ["img7.jpg"]
+    },
+    {
+      "id": "8",
+      "title": "3 BHK Flat in Mehdipatnam",
+      "price": "₹35 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Mehdipatnam, Hyderabad",
+      "area": "1350 sq ft",
+      "facilities": ["Market Nearby", "Lift", "Balcony"],
+      "description": "A well-maintained 3-bedroom flat located in Mehdipatnam, providing easy access to local markets and transportation.",
+      "images": ["img8.jpg"]
+    },
+    {
+      "id": "9",
+      "title": "3 BHK Flat in Diamond Hills",
+      "price": "₹58.3 Lakhs",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "location": "Tolichowki, Hyderabad",
+      "area": "1100 sq ft",
+      "facilities": ["Balcony", "Lift", "Parking"],
+      "description": "A spacious 3-bedroom flat in Diamond Hills, offering modern amenities and a comfortable living environment.",
+      "images": ["img9.jpg"]
+    },
+    {
+      "id": "10",
+      "title": "2 BHK Flat in Bachupally",
+      "price": "₹45 Lakhs",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "location": "Bachupally, Hyderabad",
+      "area": "950 sq ft",
+      "facilities": ["CCTV", "Power Backup", "Parking"],
+      "description": "An unfurnished 2-bedroom flat near educational institutions, featuring amenities like 24/7 power backup and covered car parking.",
+      "images": ["img10.jpg"]
+    }
+  ]
+}

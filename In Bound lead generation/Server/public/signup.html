@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup | Real Estate</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    form {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h2 {
+      color: #333;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #error {
+      margin-top: 15px;
+      text-align: center;
+      min-height: 20px;
+      color: red;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: #ffebee;
+    }
+    .success { 
+      color: green;
+      background-color: #e8f5e9;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #333;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h2>Create Your Account</h2>
+
+  <form id="signupForm">
+    <div class="form-group">
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" placeholder="Enter your full name" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" placeholder="Enter your email" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" placeholder="Enter your phone number" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" placeholder="Create a password (min 6 characters)" required minlength="6">
+    </div>
+    <button type="submit" id="submitBtn">Sign Up</button>
+    <div id="error"></div>
+  </form>
+
+  <a href="login.html" class="back-link">Already have an account? Login here</a>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorDiv = document.getElementById('error');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      
+      errorDiv.textContent = '';
+      errorDiv.className = '';
+
+      if (!name || !email || !phone || !password) {
+        errorDiv.textContent = 'Please fill in all fields';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorDiv.textContent = 'Password must be at least 6 characters long';
+        return;
+      }
+
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, phone, password }),
+        });
+
+        const data = await response.json();
+        console.log('Server response:', data);
+
+        if (data.success) {
+          errorDiv.textContent = 'Signup successful! Redirecting to login...';
+          errorDiv.className = 'success';
+
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        } else {
+          errorDiv.textContent = data.error || 'Signup failed. Please try again.';
+          console.error('Signup failed:', data.error);
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        errorDiv.textContent = `Error: ${error.message || 'An error occurred. Please try again later.'}`;
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
